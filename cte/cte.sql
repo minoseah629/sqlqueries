@@ -1,21 +1,21 @@
-with cte (tweet) as
+with cte (tweet, createdate) as
 (
-    select tweettext
+    select tweettext,cast(CreatedDate as DATE)
     from  usaResults
 ), 
-mentions ([start],[end],tweet) as
+mentions ([start],[end],tweet,createdate) as
 (
-    select CHARINDEX('@',cte.tweet),CHARINDEX(' ',cte.tweet), cte.tweet
+    select CHARINDEX('@',cte.tweet),CHARINDEX(' ',substring(cte.tweet,CHARINDEX('@',cte.tweet),LEN(cte.tweet))), cte.tweet, cte.createdate
     from cte    
 ),
-hashtag ([start],[end],tweet,mentioned) as
+hashtag ([start],[end],tweet,mentioned,createdate) as
 (
-    select CHARINDEX('#',tweet),CHARINDEX(' ',tweet), tweet, case when [start]<>0 then SUBSTRING(tweet,[start],[end]) end
+    select CHARINDEX('#',tweet),CHARINDEX(' ',substring(tweet,CHARINDEX('#',tweet),LEN(tweet))), tweet, case when [start]<>0 then SUBSTRING(tweet,[start],[end]) end, createdate
     from mentions    
 ),
-hashedTag (mentioned,tag,tweet) as
+hashedTag (mentioned,tag,tweet,createdate) as
 (
-    select mentioned,case when [start]<>0 then SUBSTRING(tweet,[start],[end]) end, tweet
+    select mentioned,case when [start]<>0 then SUBSTRING(tweet,[start],[end]) end, tweet,createdate
     from hashtag
 )
 select * from hashedtag
